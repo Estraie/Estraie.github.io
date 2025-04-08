@@ -9,6 +9,10 @@ let album = "default";
 document.addEventListener('DOMContentLoaded', function () {
     const music = document.getElementById('backgroundMusic');  
     const toggleMusicButton = document.getElementById('bgmButton');
+    const progressCircle = toggleMusicButton.querySelector('.progress-ring-circle');
+
+    let progressInterval;
+    const LONG_PRESS_DURATION = 800; 
 
     let audioContext = null;
     let track = null;
@@ -43,6 +47,11 @@ document.addEventListener('DOMContentLoaded', function () {
             {path: "../../bgm/The Drifting Beauty.ogg", nameZh: "林荫与泉流", nameEn: "The Drifting Beauty"},
             {path: "../../bgm/Night's Whispering Breath.ogg", nameZh: "锦色映夜风", nameEn: "Night's Whispering Breath"},
             {path: "../../bgm/Cobalt Remembrance.ogg", nameZh: "苍琅的回响", nameEn: "Cobalt Remembrance"},
+            {path: "../../bgm/Hymn of Cicadas.ogg", nameZh: "大漠虫鸣", nameEn: "Hymn of Cicadas"},
+            {path: "../../bgm/Ann's Quiescent Residence.ogg", nameZh: "安逸的静水", nameEn: "Ann's Quiescent Residence"},
+            {path: "../../bgm/Rainbow Leis.ogg", nameZh: "虹彩缀花", nameEn: "Rainbow Leis"},
+            {path: "../../bgm/Scorching Haze.ogg", nameZh: "炎霞燎彻", nameEn: "Scorching Haze"},
+            {path: "../../bgm/Night's Crown of Flowers.ogg", nameZh: "夜诞的花冠", nameEn: "Night's Crown of Flowers"},
         ],
         "fairgroundContent": [
             {path: "../../bgm/Border of Life.mp3", nameZh: "生死之境", nameEn: "Border of Life"}
@@ -58,21 +67,47 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    let lastSongInfo = null;
+
     function showSongInfo(song) {
+        if (lastSongInfo) {
+            const oldInfo = lastSongInfo;
+            oldInfo.classList.add('info-fade-out');
+            setTimeout(() => {
+                if (oldInfo.parentNode) {
+                    oldInfo.parentNode.removeChild(oldInfo);
+                }
+            }, 1300);
+        }
+
         const songInfo = document.createElement('div');
         songInfo.classList.add('music-info');
         songInfo.innerHTML = `<div style="font-size: 15px; color: #ffffff;">${song.nameZh}</div>
-                              <div style="font-size: 12px; color: #cfedca;">${song.nameEn}</div>`;
+                            <div style="font-size: 12px; color: #cfedca;">${song.nameEn}</div>`;
 
         document.body.appendChild(songInfo);
+        lastSongInfo = songInfo;
 
         setTimeout(() => {
-            songInfo.classList.add('slide-in');
+            songInfo.classList.add('info-fade-in');
         }, 100);
 
         setTimeout(() => {
-            songInfo.classList.remove('slide-in');
-            setTimeout(() => document.body.removeChild(songInfo), 1300);
+            songInfo.classList.add('info-fade-in');
+            songInfo.style.transform = `translate(0px, ${0.11 * window.innerHeight - songInfo.getBoundingClientRect().top}px)`;
+        }, 400);
+
+        setTimeout(() => {
+            songInfo.classList.add('info-fade-out');
+            const currentInfo = songInfo;
+            setTimeout(() => {
+                if (currentInfo.parentNode) {
+                    currentInfo.parentNode.removeChild(currentInfo);
+                }
+                if (lastSongInfo === currentInfo) {
+                    lastSongInfo = null;
+                }
+            }, 1300);
         }, 5000);
     }
 
@@ -129,23 +164,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 1000);
     }
 
-    let isLongPress = false; 
     let longPressTimer;
+    let isLongPress = false;
+
+    let progressLen = progressCircle.getTotalLength();
+    progressCircle.style.strokeDasharray = progressLen;
 
     toggleMusicButton.addEventListener('mousedown', (event) => {
         if (event.button === 0) {
             isLongPress = false;
-            longPressTimer = setTimeout(() => {
-                isLongPress = true;
-                playRandomSong(false);
-                toggleMusicButton.classList.add('playing');
-            }, 500);
+
+            toggleMusicButton.classList.add('longpress');
+
+            progressCircle.style.strokeDashoffset = '100';
+
+            let startTime = Date.now();
+            progressInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.max(
+                    Math.min((1.3 * elapsed - 0.3 * LONG_PRESS_DURATION) / LONG_PRESS_DURATION, 1), 
+                    0
+                );
+                progressCircle.style.strokeDashoffset = progressLen * (1 - progress);
+                
+                if (progress >= 1) {
+                    isLongPress = true;
+                }
+            }, 16);
         }
     });
 
     toggleMusicButton.addEventListener('mouseup', (event) => {
         if (event.button === 0) {
-            clearTimeout(longPressTimer);
             if (!isLongPress) {
                 if (isPlaying) {
                     fadeOut();
@@ -154,24 +204,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     playRandomSong(true);
                     toggleMusicButton.classList.add('playing');
                 }
+            } else {
+                playRandomSong(false);
+                toggleMusicButton.classList.add('playing');
             }
+            resetProgress();
         }
     });
 
     toggleMusicButton.addEventListener('mouseleave', () => {
-        clearTimeout(longPressTimer);
+        resetProgress();
     });
 
-    // toggleMusicButton.addEventListener('click', () => {
-    //     if (fading) {
-    //         return;
-    //     }
-    //     if (isPlaying) {
-    //         fadeOut();
-    //         toggleMusicButton.classList.remove('playing');
-    //     } else {
-    //         playRandomSong(true);
-    //         toggleMusicButton.classList.add('playing');
-    //     }
-    // });
+    function resetProgress() {
+        clearInterval(progressInterval);
+        toggleMusicButton.classList.remove('longpress');
+        progressCircle.style.strokeDashoffset = progressLen;
+        isLongPress = false;
+    }
 });

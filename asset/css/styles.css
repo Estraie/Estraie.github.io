@@ -13,6 +13,11 @@
     src: url('../../resource/font/SC-Regular-pruned.otf') format('opentype');
 }
 
+/* @font-face {
+    font-family: '筑紫';
+    src: url('../../resource/font/筑紫-cn-pruned.ttf') format('truetype');
+} */
+
 .sc-text {
     font-family: 'SC-Regular';
     font-size: 12px;
@@ -87,27 +92,36 @@ button:hover {
     align-items: center;
     justify-content: center;
     transition: background-color 0.8s ease, transform 0.2s;
+    position: relative;
+    display: flex;
 }
 
-.music-info {
-    cursor: default;
-    position: fixed;
-    z-index: 100;
-    right: -400px;
-    top: 12%;
-    width: 300px;
-    background-color: #347834;
-    color: #cfedca;
-    padding: 15px;
-    /* border-radius: 10px; */
-    /* box-shadow: 0 4px 8px #2980b9; */
-    text-align: left;
-    font-family: 'HYWenHei-85W';
-    transition: transform 1.3s ease;
+.button-text {
+    z-index: 1;
 }
 
-.slide-in {
-    transform: translateX(-400px);
+.progress-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.progress-ring-circle {
+    fill: transparent;
+    stroke: #cfedca;
+    stroke-width: 2;
+    stroke-linecap: round;
+    /* stroke-dasharray: 100; */
+    /* stroke-dashoffset: 100; */
+    transform-origin: 50% 50%;
+}
+
+.music-button.longpress .progress-ring {
+    opacity: 1;
 }
 
 .playing {
@@ -118,6 +132,48 @@ button:hover {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
+.music-info {
+    cursor: default;
+    position: fixed;
+    z-index: 100;
+    right: 0px;
+    bottom: 10%;
+    width: 250px;
+    color: #cfedca;
+    padding: 15px;
+    font-family: 'HYWenHei-85W';
+    transition: transform 1.3s ease, opacity 1.3s ease;
+    opacity: 0;
+}
+.music-info div {
+    text-indent: 10px;
+    text-align: left;
+}
+
+.music-info::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(52, 120, 52, 1);
+    filter: blur(10px);
+    z-index: -1;
+}
+
+.info-fade-in {
+    opacity: 1;
+}
+
+.info-fade-out {
+    opacity: 0; /* 原地淡出效果 */
+}
+
+/* .slide-in {
+    transform: translateX(-400px);
+} */
 
 .header-content {
     display: flex;
