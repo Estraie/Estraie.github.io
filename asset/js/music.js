@@ -52,6 +52,12 @@ document.addEventListener('DOMContentLoaded', function () {
             {path: "../../bgm/Rainbow Leis.ogg", nameZh: "虹彩缀花", nameEn: "Rainbow Leis"},
             {path: "../../bgm/Scorching Haze.ogg", nameZh: "炎霞燎彻", nameEn: "Scorching Haze"},
             {path: "../../bgm/Night's Crown of Flowers.ogg", nameZh: "夜诞的花冠", nameEn: "Night's Crown of Flowers"},
+            {path: "../../bgm/An Array of Sumptuous Fare.ogg", nameZh: "列阵珍馐", nameEn: "An Array of Sumptuous Fare"},
+            {path: "../../bgm/The World at Bay Beyond the Pillow.ogg", nameZh: "将世事高枕", nameEn: "The World at Bay Beyond the Pillow"},
+            {path: "../../bgm/Dzwony na nieszpory.ogg", nameZh: "晚祷的铃歌", nameEn: "Dzwony na nieszpory"},
+            {path: "../../bgm/Wading in Hazy Light.ogg", nameZh: "涉行之刻", nameEn: "Wading in Hazy Light"},
+            {path: "../../bgm/Misty Redolence.ogg", nameZh: "熏沐的香氛", nameEn: "Misty Redolence"},
+            {path: "../../bgm/Tells of the Frost-Lamp in One's Heart.ogg", nameZh: "述往心的霜盏", nameEn: "Tells of the Frost-Lamp in One's Heart"},
         ],
         "fairgroundContent": [
             {path: "../../bgm/Border of Life.mp3", nameZh: "生死之境", nameEn: "Border of Life"}
@@ -69,6 +75,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let lastSongInfo = null;
 
+    function getLineCount(el) {
+        if (!(el instanceof Element)) return 0;
+
+        const style = getComputedStyle(el);
+        let lineHeight = parseFloat(style.lineHeight);
+
+        if (isNaN(lineHeight)) {
+            lineHeight = parseFloat(style.fontSize) * 1.2;
+        }
+
+        const height = el.offsetHeight;
+
+        return Math.round(height / lineHeight);
+    }
+
+
+
+    function autoFitText(el, minFontSize = 9) {
+        let fontSize = parseFloat(getComputedStyle(el).fontSize);
+        console.info(getLineCount(el));
+        while (getLineCount(el) > 1 && fontSize > minFontSize) {
+            fontSize -= 0.5;
+            el.style.fontSize = fontSize + 'px';
+        }
+    }
+
+    
     function showSongInfo(song) {
         if (lastSongInfo) {
             const oldInfo = lastSongInfo;
@@ -83,9 +116,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const songInfo = document.createElement('div');
         songInfo.classList.add('music-info');
         songInfo.innerHTML = `<div style="font-size: 15px; color: #ffffff;">${song.nameZh}</div>
-                            <div style="font-size: 12px; color: #cfedca;">${song.nameEn}</div>`;
+                            <div class="song-en" style="font-size: 12px; color: #cfedca;">${song.nameEn}</div>`;
 
         document.body.appendChild(songInfo);
+
+        setTimeout(() => {
+            const en = songInfo.querySelector('.song-en');
+            autoFitText(en);
+        }, 0);
+
         lastSongInfo = songInfo;
 
         setTimeout(() => {

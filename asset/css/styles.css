@@ -13,13 +13,18 @@
     src: url('../../resource/font/SC-Regular-pruned.otf') format('opentype');
 }
 
+@font-face {
+    font-family: "筑紫アンティーク";
+    src: url("../../resource/font/筑紫-jp-pruned.ttf") format("truetype");
+}
+
 /* @font-face {
     font-family: '筑紫';
     src: url('../../resource/font/筑紫-cn-pruned.ttf') format('truetype');
 } */
 
 .sc-text {
-    font-family: 'SC-Regular';
+    font-family: "SC-Regular", "筑紫アンティーク";
     font-size: 12px;
 }
 
@@ -248,7 +253,7 @@ footer {
     width: 64%;
     text-align: center;
     user-select: none;
-    font-family: "SC-Regular";
+    font-family: "SC-Regular", "筑紫アンティーク";
 }
 
 .text-overlay p, .text-overlay h2{
